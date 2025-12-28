@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import type { Router } from 'vue-router';
-import type { Player, Game } from '../../shared/types.js';
+import type { Player, Game } from '../../../shared/types.js';
+import { getPlayerId } from '../../utils/storage.js';
 
 interface LobbyLogicParams {
   router: Router;
@@ -12,12 +13,23 @@ export function useLobbyViewLogic({ router, gameId, startGame }: LobbyLogicParam
   const game = ref<Game | null>(null);
   const players = ref<Player[]>([]);
   const errorMessage = ref('');
-  const myPlayerId = ref('');
+  const myPlayerId = ref(getPlayerId() ?? '');
 
-  function handleGameJoined(data: { gameId: string; game: Game }) {
+  function handleGameCreated(data: { gameId: string; playerId: string; game: Game }) {
     if (data.gameId === gameId) {
       game.value = data.game;
     }
+  }
+
+  function handleGameJoined(data: { gameId: string; playerId: string; game: Game }) {
+    if (data.gameId === gameId) {
+      game.value = data.game;
+    }
+  }
+
+  function handleGameState(data: { game: Game }) {
+    console.log('LobbyView: Received game_state', data.game);
+    game.value = data.game;
   }
 
   function handlePlayerJoined(data: { player: Player }) {
@@ -27,7 +39,8 @@ export function useLobbyViewLogic({ router, gameId, startGame }: LobbyLogicParam
     }
   }
 
-  function handleGameStarted() {
+  function handleGameStarted(data: { startedAt: number; endsAt: number }) {
+    console.log('LobbyView: Game started, navigating to play view', data);
     router.push(`/play/${gameId}`);
   }
 
@@ -49,7 +62,9 @@ export function useLobbyViewLogic({ router, gameId, startGame }: LobbyLogicParam
     players,
     errorMessage,
     myPlayerId,
+    handleGameCreated,
     handleGameJoined,
+    handleGameState,
     handlePlayerJoined,
     handleGameStarted,
     handleError,

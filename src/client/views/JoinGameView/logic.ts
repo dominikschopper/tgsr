@@ -1,14 +1,14 @@
 import { ref } from 'vue';
 import type { Router } from 'vue-router';
-import { getPlayerName } from '../utils/storage.js';
+import { getPlayerName, setPlayerId } from '../../utils/storage.js';
 
 interface JoinGameLogicParams {
   router: Router;
-  joinGame: (code: string, playerName: string) => void;
+  joinGame: (gameId: string, playerName: string) => void;
 }
 
 export function useJoinGameViewLogic({ router, joinGame }: JoinGameLogicParams) {
-  const gameCode = ref('');
+  const gameId = ref('');
   const errorMessage = ref('');
 
   function handleJoinGame() {
@@ -18,22 +18,23 @@ export function useJoinGameViewLogic({ router, joinGame }: JoinGameLogicParams) 
       return;
     }
 
-    const code = gameCode.value.trim().toUpperCase();
-    if (!code) {
-      errorMessage.value = 'Please enter a game code';
+    const id = gameId.value.trim().toUpperCase();
+    if (!id) {
+      errorMessage.value = 'Please enter a game ID';
       return;
     }
 
-    if (code.length < 5) {
-      errorMessage.value = 'Game code must be 6 characters';
+    if (id.length !== 6) {
+      errorMessage.value = 'Game ID must be 6 characters';
       return;
     }
 
     errorMessage.value = '';
-    joinGame(code, playerName);
+    joinGame(id, playerName);
   }
 
-  function handleGameJoined(data: { gameId: string }) {
+  function handleGameJoined(data: { gameId: string; playerId: string }) {
+    setPlayerId(data.playerId);
     router.push(`/lobby/${data.gameId}`);
   }
 
@@ -42,7 +43,7 @@ export function useJoinGameViewLogic({ router, joinGame }: JoinGameLogicParams) 
   }
 
   return {
-    gameCode,
+    gameId,
     errorMessage,
     handleJoinGame,
     handleGameJoined,

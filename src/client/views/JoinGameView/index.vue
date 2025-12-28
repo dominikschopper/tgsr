@@ -4,15 +4,16 @@
       <h2>Join Game</h2>
 
       <div class="form-group">
-        <label for="gameCode">Game Code</label>
+        <label for="gameId">Game ID</label>
         <input
-          id="gameCode"
-          v-model="gameCode"
+          id="gameId"
+          v-model="gameId"
           type="text"
-          placeholder="Enter game code"
+          placeholder="e.g. ABC123"
           @keyup.enter="handleJoinGame"
+          maxlength="6"
         />
-        <p class="text-small mt-1">Enter the code shared by the game host</p>
+        <p class="text-small mt-1">Enter the 6-character game ID</p>
       </div>
 
       <div v-if="errorMessage" class="error-message">
@@ -20,7 +21,7 @@
       </div>
 
       <div class="button-group">
-        <button @click="handleJoinGame" :disabled="gameCode.trim().length < 5">
+        <button @click="handleJoinGame" :disabled="gameId.trim().length !== 6">
           Join Game
         </button>
         <button @click="() => router.push('/')" class="secondary">Back</button>
@@ -32,14 +33,14 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useGameWebSocket } from '@/composables/use-game-websocket';
-import { useJoinGameViewLogic } from './join-game-view-logic';
+import { useGameWebSocket } from '../../composables/use-game-websocket';
+import { useJoinGameViewLogic } from './logic';
 
 const router = useRouter();
 const { joinGame, onEvent, offEvent } = useGameWebSocket();
 
 const {
-  gameCode,
+  gameId,
   errorMessage,
   handleJoinGame,
   handleGameJoined,
@@ -63,7 +64,7 @@ onUnmounted(() => {
   color: #666;
 }
 
-#gameCode {
+#gameId {
   font-family: 'Courier New', monospace;
   font-size: 1.25rem;
   letter-spacing: 0.1em;

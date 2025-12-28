@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import type { Router } from 'vue-router';
-import { setPlayerName } from '../utils/storage.js';
+import { setPlayerName } from '../../utils/storage.js';
 
 export function useHomeViewLogic(router: Router) {
   const errorMessage = ref('');

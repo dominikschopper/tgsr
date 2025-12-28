@@ -35,8 +35,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { getPlayerName } from '../utils/storage';
-import { useHomeViewLogic } from './home-view-logic';
+import { getPlayerName } from '../../utils/storage';
+import { useHomeViewLogic } from './logic';
 
 const router = useRouter();
 const playerName = ref('');

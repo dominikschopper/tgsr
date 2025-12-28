@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-import CreateGameView from '../views/CreateGameView.vue';
-import JoinGameView from '../views/JoinGameView.vue';
-import LobbyView from '../views/LobbyView.vue';
-import GameView from '../views/GameView.vue';
-import ResultsView from '../views/ResultsView.vue';
+import HomeView from '../views/HomeView/index.vue';
+import GameSetupView from '../views/GameSetupView/index.vue';
+import JoinGameView from '../views/JoinGameView/index.vue';
+import LobbyView from '../views/LobbyView/index.vue';
+import GameView from '../views/GameView/index.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -17,7 +16,7 @@ const router = createRouter({
     {
       path: '/game',
       name: 'create',
-      component: CreateGameView
+      component: GameSetupView
     },
     {
       path: '/join',
@@ -29,8 +28,7 @@ const router = createRouter({
       name: 'lobby',
       component: LobbyView,
       props: true,
-      // Lobby = waiting room where players gather before game starts
-      // Host can see "Start Game" button, others wait
+      // Lobby = waiting room where players join an existing game
       // Shows game code, variant, duration, and player list
     },
     {
@@ -38,13 +36,7 @@ const router = createRouter({
       name: 'play',
       component: GameView,
       props: true,
-      // Active game where players submit HTML tags
-    },
-    {
-      path: '/results/:gameId',
-      name: 'results',
-      component: ResultsView,
-      props: true
+      // Active game where players submit HTML tags, then shows results when game ends
     }
   ]
 });

@@ -4,7 +4,6 @@ export type GameStatus = 'waiting' | 'active' | 'finished';
 
 export interface Game {
   id: string;
-  code: string;
   hostId: string;
   variant: GameVariant;
   durationMinutes: number;
@@ -13,6 +12,7 @@ export interface Game {
   endsAt?: number;
   players: string[]; // player IDs
   submissions: Record<string, string[]>; // playerId -> tags (serialized from Map)
+  scores?: PlayerScore[]; // Final scores when game is finished
 }
 
 export interface Player {
@@ -37,7 +37,7 @@ export interface CreateGamePayload {
 }
 
 export interface JoinGamePayload {
-  code: string;
+  gameId: string;
   playerName: string;
 }
 
@@ -52,7 +52,6 @@ export interface SubmitTagPayload {
 
 export interface GameCreatedResponse {
   gameId: string;
-  code: string;
   playerId: string;
 }
 

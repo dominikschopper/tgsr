@@ -36,13 +36,11 @@ io.on('connection', (socket) => {
       return;
     }
 
-    const gameId = nanoid(10);
-    const code = nanoid(6).toUpperCase();
+    const gameId = nanoid(6).toUpperCase(); // Use 6-char uppercase ID
     const playerId = socket.id;
 
     const game: Game = {
       id: gameId,
-      code,
       hostId: playerId,
       variant,
       durationMinutes,
@@ -61,12 +59,21 @@ io.on('connection', (socket) => {
     players.set(playerId, player);
 
     socket.join(gameId);
-    socket.emit('game_created', { gameId, code, playerId });
+
+    // Send game data to creator (serialize Map to Object)
+    const gameData = {
+      ...game,
+      submissions: Object.fromEntries(game.submissions)
+    };
+    socket.emit('game_created', { gameId, playerId, game: gameData });
+
+    // Also notify that the host joined (so they appear in player list)
+    io.to(gameId).emit('player_joined', { player });
   });
 
   // Join game
-  socket.on('join_game', ({ code, playerName }) => {
-    const game = Array.from(games.values()).find(g => g.code === code);
+  socket.on('join_game', ({ gameId, playerName }) => {
+    const game = games.get(gameId);
 
     if (!game) {
       socket.emit('error', { message: 'Game not found' });
@@ -98,7 +105,7 @@ io.on('connection', (socket) => {
       ...game,
       submissions: Object.fromEntries(game.submissions)
     };
-    socket.emit('game_joined', { gameId: game.id, game: gameData });
+    socket.emit('game_joined', { gameId: game.id, playerId, game: gameData });
   });
 
   // Start game
@@ -124,6 +131,13 @@ io.on('connection', (socket) => {
     game.startedAt = Date.now();
     game.endsAt = Date.now() + game.durationMinutes * 60 * 1000;
 
+    const roomSize = io.sockets.adapter.rooms.get(gameId)?.size || 0;
+    const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(gameId) || []);
+    console.log(`Starting game with id`, gameId);
+    console.log(`  Room size:`, roomSize);
+    console.log(`  Sockets in room: ${socketsInRoom.join(', ')}`);
+    console.log(`  Game players: ${game.players.join(', ')}`);u
+
     io.to(gameId).emit('game_started', {
       startedAt: game.startedAt,
       endsAt: game.endsAt
@@ -134,6 +148,7 @@ io.on('connection', (socket) => {
       if (game.status === 'active') {
         game.status = 'finished';
         const scores = calculateScores(game);
+        console.log(`Game ${gameId} ended, sending game_ended event to room with scores:`, scores);
         io.to(gameId).emit('game_ended', { scores });
       }
     }, game.durationMinutes * 60 * 1000);
@@ -194,6 +209,64 @@ io.on('connection', (socket) => {
         tag: normalizedTag
       });
     }
+  });
+
+  // Get game state (for players who join mid-game or refresh)
+  socket.on('get_game_state', ({ gameId, playerId }) => {
+    console.log(`get_game_state: gameId=${gameId}, playerId=${playerId}, socket.id=${socket.id}`);
+    const game = games.get(gameId);
+
+    if (!game) {
+      console.log(`Game ${gameId} not found`);
+      socket.emit('error', { message: 'Game not found' });
+      return;
+    }
+
+    console.log(`Game ${gameId} players: ${game.players.join(', ')}, status: ${game.status}`);
+
+    // Verify player is part of this game
+    if (!game.players.includes(playerId)) {
+      console.log(`Player ${playerId} not in game players list`);
+      socket.emit('error', { message: 'You are not part of this game' });
+      return;
+    }
+
+    // Update player's socket ID and ensure they're in the room
+    const player = players.get(playerId);
+    console.log(`Found player: ${player ? player.name : 'null'}`);
+
+    if (player) {
+      // Update the player entry with new socket ID (only if different)
+      if (playerId !== socket.id) {
+        players.delete(playerId);
+        players.set(socket.id, player);
+
+        // Update game's player list
+        const playerIndex = game.players.indexOf(playerId);
+        if (playerIndex !== -1) {
+          game.players[playerIndex] = socket.id;
+        }
+
+        // Update submissions map if player had submissions
+        const oldSubmissions = game.submissions.get(playerId);
+        if (oldSubmissions) {
+          game.submissions.delete(playerId);
+          game.submissions.set(socket.id, oldSubmissions);
+        }
+      }
+
+      // Join the game room
+      socket.join(gameId);
+      console.log(`Player ${socket.id} (${player.name}) joined room ${gameId}`);
+    }
+
+    const gameData = {
+      ...game,
+      submissions: Object.fromEntries(game.submissions)
+    };
+
+    console.log(`Sending game_state: status=${gameData.status}, endsAt=${gameData.endsAt}`);
+    socket.emit('game_state', { game: gameData });
   });
 
   socket.on('disconnect', () => {

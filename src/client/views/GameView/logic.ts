@@ -1,14 +1,12 @@
 import { ref } from 'vue';
-import type { Router } from 'vue-router';
-import { formatTime, calculateTimeRemaining, isTimeWarning } from '../utils/timer.js';
+import { formatTime, calculateTimeRemaining, isTimeWarning } from '../../utils/timer.js';
 
 interface GameLogicParams {
-  router: Router;
   gameId: string;
   submitTag: (gameId: string, tag: string) => void;
 }
 
-export function useGameViewLogic({ router, gameId, submitTag }: GameLogicParams) {
+export function useGameViewLogic({ gameId, submitTag }: GameLogicParams) {
   const tagInput = ref('');
   const myTags = ref<string[]>([]);
   const allTags = ref<Map<string, string[]>>(new Map()); // playerId -> tags (for quickdraw)
@@ -17,12 +15,19 @@ export function useGameViewLogic({ router, gameId, submitTag }: GameLogicParams)
   const errorMessage = ref('');
   const feedbackMessage = ref('');
   const variant = ref<'sharpshooter' | 'quickdraw'>('sharpshooter');
+  const gameEnded = ref(false);
+  const scores = ref<any[]>([]);
 
   let timerInterval: number | null = null;
 
-  function handleGameStarted(data: { startedAt: number; endsAt: number }) {
-    endsAt.value = data.endsAt;
-    timeRemaining.value = calculateTimeRemaining(data.endsAt);
+  function startTimer(endTime: number) {
+    endsAt.value = endTime;
+    timeRemaining.value = calculateTimeRemaining(endTime);
+
+    // Clear existing interval if any
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
 
     // Start timer countdown
     timerInterval = window.setInterval(() => {
@@ -31,6 +36,22 @@ export function useGameViewLogic({ router, gameId, submitTag }: GameLogicParams)
         clearInterval(timerInterval);
       }
     }, 100);
+  }
+
+  function handleGameStarted(data: { startedAt: number; endsAt: number }) {
+    startTimer(data.endsAt);
+  }
+
+  function handleGameState(data: { game: any }) {
+    console.log('GameView: Received game_state', data.game);
+    // Initialize game state when we receive it
+    if (data.game.status === 'active' && data.game.endsAt) {
+      console.log('GameView: Starting timer with endsAt:', data.game.endsAt);
+      startTimer(data.game.endsAt);
+      variant.value = data.game.variant;
+    } else {
+      console.log('GameView: Game not active or no endsAt', { status: data.game.status, endsAt: data.game.endsAt });
+    }
   }
 
   function handleSubmitTag() {
@@ -52,10 +73,12 @@ export function useGameViewLogic({ router, gameId, submitTag }: GameLogicParams)
   }
 
   function handleTagSubmitted(data: { playerId: string; playerName?: string; tag: string }) {
+    // Add to my tags list (only updates if this is my tag submission)
     if (!myTags.value.includes(data.tag)) {
       myTags.value.push(data.tag);
-      feedbackMessage.value = `✓ ${data.tag} submitted!`;
     }
+
+    feedbackMessage.value = `✓ ${data.tag} submitted!`;
 
     // For quickdraw, track all submissions
     if (variant.value === 'quickdraw' && data.playerName) {
@@ -86,11 +109,15 @@ export function useGameViewLogic({ router, gameId, submitTag }: GameLogicParams)
     }, 3000);
   }
 
-  function handleGameEnded() {
+  function handleGameEnded(data?: { scores: any[] }) {
     if (timerInterval) {
       clearInterval(timerInterval);
     }
-    router.push(`/results/${gameId}`);
+    console.log('Game ended, showing results...', data);
+    if (data?.scores) {
+      scores.value = data.scores;
+      gameEnded.value = true;
+    }
   }
 
   function handleError(data: { message: string }) {
@@ -112,7 +139,10 @@ export function useGameViewLogic({ router, gameId, submitTag }: GameLogicParams)
     errorMessage,
     feedbackMessage,
     variant,
+    gameEnded,
+    scores,
     handleGameStarted,
+    handleGameState,
     handleSubmitTag,
     handleTagSubmitted,
     handleTagInvalid,

@@ -4,8 +4,8 @@
       <h2>Game Lobby</h2>
 
       <div v-if="game" class="game-info">
-        <div class="game-code">{{ game.code }}</div>
-        <p class="text-center">Share this code with other players</p>
+        <div class="game-code">{{ game.id }}</div>
+        <p class="text-center">Share this game ID with other players</p>
 
         <div class="game-details mt-2">
           <p><strong>Variant:</strong> {{ game.variant === 'sharpshooter' ? 'Sharpshooter' : 'Quickdraw' }}</p>
@@ -28,35 +28,40 @@
       </div>
 
       <div class="button-group">
-        <button v-if="isHost()" @click="handleStartGame" :disabled="players.length < 2">
+        <button v-if="game?.hostId === getPlayerId()" @click="handleStartGame" :disabled="players.length < 2">
           Start Game
         </button>
         <p v-else class="text-center">Waiting for host to start the game...</p>
         <button @click="() => router.push('/')" class="secondary">Leave Game</button>
       </div>
     </div>
+    <pre>game:{{ game }}</pre>
+    <pre>playerId:{{ getPlayerId() }}</pre>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useGameWebSocket } from '../composables/use-game-websocket';
-import { useLobbyViewLogic } from './lobby-view-logic';
+import { useGameWebSocket } from '../../composables/use-game-websocket';
+import { useLobbyViewLogic } from './logic';
+import { getPlayerName, getPlayerId } from '../../utils/storage';
 
 const props = defineProps<{
   gameId: string;
 }>();
 
 const router = useRouter();
-const { startGame, onEvent, offEvent } = useGameWebSocket();
+const { startGame, getGameState, onEvent, offEvent } = useGameWebSocket();
 
 const {
   game,
   players,
   errorMessage,
   myPlayerId,
+  handleGameCreated,
   handleGameJoined,
+  handleGameState,
   handlePlayerJoined,
   handleGameStarted,
   handleError,
@@ -65,6 +70,15 @@ const {
 } = useLobbyViewLogic({ router, gameId: props.gameId, startGame });
 
 onMounted(() => {
+  // Join the game room to receive game_started events
+  const playerId = getPlayerId();
+  if (playerId) {
+    console.log('LobbyView: Joining room with playerId:', playerId);
+    getGameState(props.gameId, playerId);
+  }
+
+  onEvent('game_state', handleGameState);
+  onEvent('game_created', handleGameCreated);
   onEvent('game_joined', handleGameJoined);
   onEvent('player_joined', handlePlayerJoined);
   onEvent('game_started', handleGameStarted);
@@ -72,6 +86,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  offEvent('game_created', handleGameCreated);
   offEvent('game_joined', handleGameJoined);
   offEvent('player_joined', handlePlayerJoined);
   offEvent('game_started', handleGameStarted);
