@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "esnext",
+    "types": ["node"],
+    "outDir": "./dist/server",
+    "rootDir": "./src"
+  },
+  "include": ["src/server/**/*", "src/shared/**/*", "vite.config.ts"],
+  "exclude": ["node_modules", "dist", "src/client"]
+}
