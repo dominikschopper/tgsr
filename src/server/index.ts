@@ -3,6 +3,10 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
+import { isValidHTMLTag } from '../shared/html-tags.js';
+import type { Game as GameType, Player, PlayerScore } from '../shared/types.js';
+import { calculateSharpshooterScores, calculateQuickdrawScores } from './scoring.js';
+import { SERVER_PORT, MIN_GAME_DURATION_MINUTES, MAX_GAME_DURATION_MINUTES, MIN_PLAYERS } from '../shared/config.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -10,34 +14,28 @@ const io = new Server(httpServer, {
   cors: { origin: '*' } // Configure properly for production
 });
 
+// Serve static files in production
+app.use(express.static('dist/client'));
+
 // In-memory storage (lost on restart - that's OK!)
+interface Game extends Omit<GameType, 'submissions'> {
+  submissions: Map<string, string[]>; // Use Map internally, serialize for socket events
+}
+
 const games = new Map<string, Game>();
 const players = new Map<string, Player>();
-
-interface Game {
-  id: string;
-  code: string;
-  hostId: string;
-  variant: 'sharpshooter' | 'quickdraw';
-  durationMinutes: number;
-  status: 'waiting' | 'active' | 'finished';
-  startedAt?: number;
-  endsAt?: number;
-  players: string[]; // player IDs
-  submissions: Map<string, string[]>; // playerId -> tags
-}
-
-interface Player {
-  id: string;
-  name: string;
-  gameId: string;
-}
 
 io.on('connection', (socket) => {
   console.log('Player connected:', socket.id);
 
   // Create game
   socket.on('create_game', ({ playerName, variant, durationMinutes }) => {
+    // Validate duration
+    if (durationMinutes < MIN_GAME_DURATION_MINUTES || durationMinutes > MAX_GAME_DURATION_MINUTES) {
+      socket.emit('error', { message: `Duration must be between ${MIN_GAME_DURATION_MINUTES} and ${MAX_GAME_DURATION_MINUTES} minutes` });
+      return;
+    }
+
     const gameId = nanoid(10);
     const code = nanoid(6).toUpperCase();
     const playerId = socket.id;
@@ -94,15 +92,31 @@ io.on('connection', (socket) => {
 
     // Notify everyone in the game
     io.to(game.id).emit('player_joined', { player });
-    socket.emit('game_joined', { gameId: game.id, game });
+
+    // Send game state to joining player (serialize Map to Object)
+    const gameData = {
+      ...game,
+      submissions: Object.fromEntries(game.submissions)
+    };
+    socket.emit('game_joined', { gameId: game.id, game: gameData });
   });
 
   // Start game
   socket.on('start_game', ({ gameId }) => {
     const game = games.get(gameId);
 
-    if (!game || game.hostId !== socket.id) {
-      socket.emit('error', { message: 'Not authorized' });
+    if (!game) {
+      socket.emit('error', { message: 'Game not found' });
+      return;
+    }
+
+    if (game.hostId !== socket.id) {
+      socket.emit('error', { message: 'Not authorized - only host can start' });
+      return;
+    }
+
+    if (game.players.length < MIN_PLAYERS) {
+      socket.emit('error', { message: `Need at least ${MIN_PLAYERS} players to start` });
       return;
     }
 
@@ -117,9 +131,11 @@ io.on('connection', (socket) => {
 
     // Auto-end game after duration
     setTimeout(() => {
-      game.status = 'finished';
-      const scores = calculateScores(game);
-      io.to(gameId).emit('game_ended', { scores });
+      if (game.status === 'active') {
+        game.status = 'finished';
+        const scores = calculateScores(game);
+        io.to(gameId).emit('game_ended', { scores });
+      }
     }, game.durationMinutes * 60 * 1000);
   });
 
@@ -128,26 +144,39 @@ io.on('connection', (socket) => {
     const game = games.get(gameId);
     const player = players.get(socket.id);
 
-    if (!game || !player || game.status !== 'active') {
-      socket.emit('error', { message: 'Invalid game state' });
+    if (!game) {
+      socket.emit('error', { message: 'Game not found' });
       return;
     }
 
+    if (!player) {
+      socket.emit('error', { message: 'Player not found' });
+      return;
+    }
+
+    if (game.status !== 'active') {
+      socket.emit('error', { message: 'Game is not active' });
+      return;
+    }
+
+    // Normalize tag to lowercase
+    const normalizedTag = tag.trim().toLowerCase();
+
     // Validate tag
-    if (!isValidHTMLTag(tag)) {
+    if (!isValidHTMLTag(normalizedTag)) {
       socket.emit('tag_invalid', { tag });
       return;
     }
 
     // Check if already submitted
     const playerTags = game.submissions.get(socket.id) || [];
-    if (playerTags.includes(tag)) {
-      socket.emit('tag_duplicate', { tag });
+    if (playerTags.includes(normalizedTag)) {
+      socket.emit('tag_duplicate', { tag: normalizedTag });
       return;
     }
 
     // Add submission
-    playerTags.push(tag);
+    playerTags.push(normalizedTag);
     game.submissions.set(socket.id, playerTags);
 
     // Notify based on variant
@@ -156,13 +185,13 @@ io.on('connection', (socket) => {
       io.to(gameId).emit('tag_submitted', {
         playerId: socket.id,
         playerName: player.name,
-        tag
+        tag: normalizedTag
       });
     } else {
       // Sharpshooter: only confirm to submitter
       socket.emit('tag_submitted', {
         playerId: socket.id,
-        tag
+        tag: normalizedTag
       });
     }
   });
@@ -173,72 +202,29 @@ io.on('connection', (socket) => {
   });
 });
 
-function calculateScores(game: Game) {
-  // Implementation of scoring logic
-  // ...
-}
+function calculateScores(game: Game): PlayerScore[] {
+  // Build player names map
+  const playerNames = new Map<string, string>();
+  game.players.forEach(playerId => {
+    const player = players.get(playerId);
+    if (player) {
+      playerNames.set(playerId, player.name);
+    }
+  });
 
-function isValidHTMLTag(tag: string): boolean {
-  // Use your HTML_TAGS list
-  return HTML_TAGS.includes(tag.toLowerCase());
+  const scoringInput = {
+    playerIds: game.players,
+    playerNames,
+    submissions: game.submissions
+  };
+
+  if (game.variant === 'sharpshooter') {
+    return calculateSharpshooterScores(scoringInput);
+  } else {
+    return calculateQuickdrawScores(scoringInput);
+  }
 }
 
 httpServer.listen(3000, () => {
   console.log('Server running on port 3000');
 });
-Frontend (Vue 3 + Socket.io Client)
-
-// src/composables/useGameWebSocket.ts
-import { ref, onUnmounted } from 'vue';
-import { io, Socket } from 'socket.io-client';
-
-const socket = ref<Socket | null>(null);
-const connected = ref(false);
-
-export function useGameWebSocket() {
-  function connect() {
-    socket.value = io('http://localhost:3000'); // Or your deployed URL
-
-    socket.value.on('connect', () => {
-      connected.value = true;
-    });
-
-    socket.value.on('disconnect', () => {
-      connected.value = false;
-    });
-  }
-
-  function createGame(playerName: string, variant: string, durationMinutes: number) {
-    socket.value?.emit('create_game', { playerName, variant, durationMinutes });
-  }
-
-  function joinGame(code: string, playerName: string) {
-    socket.value?.emit('join_game', { code, playerName });
-  }
-
-  function startGame(gameId: string) {
-    socket.value?.emit('start_game', { gameId });
-  }
-
-  function submitTag(gameId: string, tag: string) {
-    socket.value?.emit('submit_tag', { gameId, tag });
-  }
-
-  function onEvent(event: string, callback: Function) {
-    socket.value?.on(event, callback);
-  }
-
-  onUnmounted(() => {
-    socket.value?.disconnect();
-  });
-
-  return {
-    connected,
-    connect,
-    createGame,
-    joinGame,
-    startGame,
-    submitTag,
-    onEvent
-  };
-}
