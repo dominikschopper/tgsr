@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { calculateSharpshooterScores, calculateQuickdrawScores } from './scoring';
+import { calculateSharpshooterScores, calculateQuickdrawScores, calculateSoloScore } from './scoring.js';
+import { HTML_TAGS } from '../shared/html-tags.js';
 
 describe('calculateSharpshooterScores', () => {
   it('should award playerCount points for each unique tag', () => {
@@ -314,5 +315,128 @@ describe('calculateQuickdrawScores', () => {
     const scores = calculateQuickdrawScores(input);
 
     expect(scores[0].uniqueTags).toBe(2);
+  });
+});
+
+describe('calculateSoloScore', () => {
+  const totalTags = HTML_TAGS.length;
+
+  it('should calculate percentage of correct tags', () => {
+    const input = {
+      playerIds: ['player1'],
+      playerNames: new Map([['player1', 'Alice']]),
+      submissions: new Map([
+        ['player1', ['div', 'span', 'p', 'button', 'input']] // 5 tags
+      ])
+    };
+
+    const scores = calculateSoloScore(input);
+
+    expect(scores).toHaveLength(1);
+    const expectedPercentage = Math.round((5 / totalTags) * 100);
+    expect(scores[0].score).toBe(expectedPercentage);
+    expect(scores[0].playerName).toBe('Alice');
+    expect(scores[0].tags).toEqual(['div', 'span', 'p', 'button', 'input']);
+  });
+
+  it('should return 0% for no tags submitted', () => {
+    const input = {
+      playerIds: ['player1'],
+      playerNames: new Map([['player1', 'Alice']]),
+      submissions: new Map([['player1', []]])
+    };
+
+    const scores = calculateSoloScore(input);
+
+    expect(scores[0].score).toBe(0);
+  });
+
+  it('should return 100% when all tags are submitted', () => {
+    const input = {
+      playerIds: ['player1'],
+      playerNames: new Map([['player1', 'Alice']]),
+      submissions: new Map([['player1', [...HTML_TAGS]]]) // All tags
+    };
+
+    const scores = calculateSoloScore(input);
+
+    expect(scores[0].score).toBe(100);
+  });
+
+  it('should round percentage to nearest integer', () => {
+    // Submit a number of tags that creates a decimal percentage
+    const tagCount = 17; // This will likely create a decimal
+    const someTags = HTML_TAGS.slice(0, tagCount);
+
+    const input = {
+      playerIds: ['player1'],
+      playerNames: new Map([['player1', 'Alice']]),
+      submissions: new Map([['player1', someTags]])
+    };
+
+    const scores = calculateSoloScore(input);
+
+    const expectedPercentage = Math.round((tagCount / totalTags) * 100);
+    expect(scores[0].score).toBe(expectedPercentage);
+    expect(Number.isInteger(scores[0].score)).toBe(true);
+  });
+
+  it('should throw error when more than one player', () => {
+    const input = {
+      playerIds: ['player1', 'player2'],
+      playerNames: new Map([
+        ['player1', 'Alice'],
+        ['player2', 'Bob']
+      ]),
+      submissions: new Map([
+        ['player1', ['div']],
+        ['player2', ['span']]
+      ])
+    };
+
+    expect(() => calculateSoloScore(input)).toThrow('Solo scoring requires exactly one player');
+  });
+
+  it('should throw error when no players', () => {
+    const input = {
+      playerIds: [],
+      playerNames: new Map(),
+      submissions: new Map()
+    };
+
+    expect(() => calculateSoloScore(input)).toThrow('Solo scoring requires exactly one player');
+  });
+
+  it('should handle player with missing submissions', () => {
+    const input = {
+      playerIds: ['player1'],
+      playerNames: new Map([['player1', 'Alice']]),
+      submissions: new Map() // No submissions for player1
+    };
+
+    const scores = calculateSoloScore(input);
+
+    expect(scores[0].score).toBe(0);
+    expect(scores[0].tags).toEqual([]);
+  });
+
+  it('should calculate correct percentage for different tag counts', () => {
+    const testCases = [
+      { count: 10, expected: Math.round((10 / totalTags) * 100) },
+      { count: 25, expected: Math.round((25 / totalTags) * 100) },
+      { count: 50, expected: Math.round((50 / totalTags) * 100) },
+      { count: 75, expected: Math.round((75 / totalTags) * 100) },
+    ];
+
+    testCases.forEach(({ count, expected }) => {
+      const input = {
+        playerIds: ['player1'],
+        playerNames: new Map([['player1', 'Alice']]),
+        submissions: new Map([['player1', HTML_TAGS.slice(0, count)]])
+      };
+
+      const scores = calculateSoloScore(input);
+      expect(scores[0].score).toBe(expected);
+    });
   });
 });

@@ -28,7 +28,7 @@
       </div>
 
       <div class="button-group">
-        <button v-if="game?.hostId === getPlayerId()" @click="handleStartGame" :disabled="players.length < 2">
+        <button v-if="game?.hostId === getPlayerId()" @click="handleStartGame" :disabled="players.length < 1">
           Start Game
         </button>
         <p v-else class="text-center">Waiting for host to start the game...</p>

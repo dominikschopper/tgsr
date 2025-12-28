@@ -1,4 +1,5 @@
 import type { PlayerScore } from '../shared/types.js';
+import { HTML_TAGS } from '../shared/html-tags.js';
 
 export interface ScoringInput {
   playerIds: string[];
@@ -76,4 +77,27 @@ export function calculateQuickdrawScores(input: ScoringInput): PlayerScore[] {
   });
 
   return scores.sort((a, b) => b.score - a.score);
+}
+
+export function calculateSoloScore(input: ScoringInput): PlayerScore[] {
+  const { playerIds, playerNames, submissions } = input;
+
+  // Solo mode: only one player
+  if (playerIds.length !== 1) {
+    throw new Error('Solo scoring requires exactly one player');
+  }
+
+  const playerId = playerIds[0];
+  const playerTags = submissions.get(playerId) || [];
+  const totalPossibleTags = HTML_TAGS.length;
+
+  // Calculate percentage: (correct tags / total possible tags) * 100
+  const percentage = Math.round((playerTags.length / totalPossibleTags) * 100);
+
+  return [{
+    playerId,
+    playerName: playerNames.get(playerId) || 'Unknown',
+    score: percentage,
+    tags: playerTags
+  }];
 }

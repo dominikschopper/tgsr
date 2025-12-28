@@ -1,12 +1,16 @@
-const PLAYER_NAME_KEY = 'tgsr_player_name';
-const PLAYER_ID_KEY = 'tgsr_player_id';
+export const PLAYER_NAME_KEY = 'tgsr_player_name';
+export const PLAYER_ID_KEY = 'tgsr_player_id';
 
 export function getPlayerName(): string | null {
   return localStorage.getItem(PLAYER_NAME_KEY);
 }
 
 export function setPlayerName(name: string): void {
-  localStorage.setItem(PLAYER_NAME_KEY, name);
+  if (!name || name.trim() === '') {
+    localStorage.removeItem(PLAYER_NAME_KEY);
+  } else {
+    localStorage.setItem(PLAYER_NAME_KEY, name);
+  }
 }
 
 export function clearPlayerName(): void {

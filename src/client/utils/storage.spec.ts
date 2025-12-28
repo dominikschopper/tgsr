@@ -1,5 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getPlayerName, setPlayerName, clearPlayerName } from './storage';
+import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  getPlayerName,
+  setPlayerName,
+  clearPlayerName,
+  PLAYER_NAME_KEY
+} from './storage';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -34,30 +39,32 @@ describe('storage utilities', () => {
   describe('setPlayerName', () => {
     it('should store player name in localStorage', () => {
       setPlayerName('Alice');
-      expect(localStorage.getItem('tgsr_player_name')).toBe('Alice');
+      expect(localStorage.getItem(PLAYER_NAME_KEY)).toBe('Alice');
     });
 
     it('should overwrite existing player name', () => {
       setPlayerName('Alice');
       setPlayerName('Bob');
-      expect(localStorage.getItem('tgsr_player_name')).toBe('Bob');
+      expect(localStorage.getItem(PLAYER_NAME_KEY)).toBe('Bob');
     });
 
-    it('should handle empty string', () => {
+    it('should remove item when setting empty string', () => {
+      setPlayerName('Alice');
+      expect(localStorage.getItem(PLAYER_NAME_KEY)).toBe('Alice');
       setPlayerName('');
-      expect(localStorage.getItem('tgsr_player_name')).toBe('');
+      expect(localStorage.getItem(PLAYER_NAME_KEY)).toBeNull();
     });
 
     it('should handle special characters', () => {
       const specialName = 'Player_123!@#';
       setPlayerName(specialName);
-      expect(localStorage.getItem('tgsr_player_name')).toBe(specialName);
+      expect(localStorage.getItem(PLAYER_NAME_KEY)).toBe(specialName);
     });
   });
 
   describe('getPlayerName', () => {
     it('should retrieve stored player name', () => {
-      localStorage.setItem('tgsr_player_name', 'Alice');
+      localStorage.setItem(PLAYER_NAME_KEY, 'Alice');
       expect(getPlayerName()).toBe('Alice');
     });
 
@@ -76,7 +83,7 @@ describe('storage utilities', () => {
     it('should remove player name from localStorage', () => {
       setPlayerName('Alice');
       clearPlayerName();
-      expect(localStorage.getItem('tgsr_player_name')).toBeNull();
+      expect(localStorage.getItem(PLAYER_NAME_KEY)).toBeNull();
     });
 
     it('should not throw error when clearing non-existent name', () => {
@@ -89,7 +96,7 @@ describe('storage utilities', () => {
 
       clearPlayerName();
 
-      expect(localStorage.getItem('tgsr_player_name')).toBeNull();
+      expect(localStorage.getItem(PLAYER_NAME_KEY)).toBeNull();
       expect(localStorage.getItem('other_key')).toBe('other_value');
     });
   });

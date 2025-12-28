@@ -5,8 +5,8 @@ import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
 import { isValidHTMLTag } from '../shared/html-tags.js';
 import type { Game as GameType, Player, PlayerScore } from '../shared/types.js';
-import { calculateSharpshooterScores, calculateQuickdrawScores } from './scoring.js';
-import { SERVER_PORT, MIN_GAME_DURATION_MINUTES, MAX_GAME_DURATION_MINUTES, MIN_PLAYERS } from '../shared/config.js';
+import { calculateSharpshooterScores, calculateQuickdrawScores, calculateSoloScore } from './scoring.js';
+import { SERVER_PORT, MIN_GAME_DURATION_MINUTES, MAX_GAME_DURATION_MINUTES } from '../shared/config.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -122,8 +122,9 @@ io.on('connection', (socket) => {
       return;
     }
 
-    if (game.players.length < MIN_PLAYERS) {
-      socket.emit('error', { message: `Need at least ${MIN_PLAYERS} players to start` });
+    // Allow solo play (1 player minimum)
+    if (game.players.length < 1) {
+      socket.emit('error', { message: 'Need at least 1 player to start' });
       return;
     }
 
@@ -136,7 +137,7 @@ io.on('connection', (socket) => {
     console.log(`Starting game with id`, gameId);
     console.log(`  Room size:`, roomSize);
     console.log(`  Sockets in room: ${socketsInRoom.join(', ')}`);
-    console.log(`  Game players: ${game.players.join(', ')}`);u
+    console.log(`  Game players: ${game.players.join(', ')}`);
 
     io.to(gameId).emit('game_started', {
       startedAt: game.startedAt,
@@ -291,6 +292,12 @@ function calculateScores(game: Game): PlayerScore[] {
     submissions: game.submissions
   };
 
+  // Solo mode: only 1 player
+  if (game.players.length === 1) {
+    return calculateSoloScore(scoringInput);
+  }
+
+  // Multi-player modes
   if (game.variant === 'sharpshooter') {
     return calculateSharpshooterScores(scoringInput);
   } else {

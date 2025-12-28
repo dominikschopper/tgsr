@@ -67,6 +67,19 @@ export function useGameViewLogic({ gameId, submitTag }: GameLogicParams) {
       return;
     }
 
+    // Quickdraw: Check if tag already taken by any player
+    if (variant.value === 'quickdraw') {
+      const allSubmittedTags = Array.from(allTags.value.values()).flat();
+      if (allSubmittedTags.includes(tag)) {
+        feedbackMessage.value = `✗ "${tag}" already taken by another player`;
+        setTimeout(() => {
+          feedbackMessage.value = '';
+        }, 3000);
+        tagInput.value = '';
+        return;
+      }
+    }
+
     submitTag(gameId, tag);
     tagInput.value = '';
     feedbackMessage.value = '';
