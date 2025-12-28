@@ -1,0 +1,112 @@
+@startuml createGame Data Flow
+!theme plain
+skinparam sequenceMessageAlign center
+
+actor User
+participant "CreateGameView" as CreateView
+participant "localStorage" as LS
+participant "WebSocket\nComposable" as WS
+participant "Socket.io\nClient" as SocketClient
+participant "Socket.io\nServer" as SocketServer
+participant "Server\nGames Map" as GamesMap
+participant "Server\nPlayers Map" as PlayersMap
+participant "LobbyView" as LobbyView
+
+== Initial Setup ==
+User -> CreateView: Enter variant & duration\nClick "Create Game"
+CreateView -> LS: getPlayerName()
+LS --> CreateView: playerName
+note right: Player name was saved\non HomeView
+
+== Create Game Request ==
+CreateView -> WS: createGame(playerName, variant, duration)
+WS -> SocketClient: emit('create_game', {\n  playerName,\n  variant,\n  durationMinutes\n})
+note right of SocketClient: Socket.id is auto-assigned\nby Socket.io connection
+
+SocketClient -> SocketServer: create_game event
+note right of SocketServer: socket.id = unique connection ID
+
+== Server Processing ==
+SocketServer -> SocketServer: gameId = nanoid(6).toUpperCase()
+note right: Generates 6-char ID\ne.g., "ABC123"
+
+SocketServer -> SocketServer: playerId = socket.id
+note right: Use socket.id as playerId
+
+SocketServer -> GamesMap: Create Game object
+note right of GamesMap: games.set(gameId, {\n  id: gameId,\n  hostId: playerId,\n  variant,\n  durationMinutes,\n  status: 'waiting',\n  players: [playerId],\n  submissions: new Map()\n})
+
+SocketServer -> PlayersMap: Create Player object
+note right of PlayersMap: players.set(playerId, {\n  id: playerId,\n  name: playerName,\n  gameId\n})
+
+SocketServer -> SocketServer: socket.join(gameId)
+note right: Socket joins room\nnamed by gameId
+
+== Server Response ==
+
+SocketServer -> SocketClient: emit('game_created', {\n  gameId,\n  playerId,\n  game: {...game, submissions: {}}\n})
+note left: Direct to creator only\n(not to room)
+
+SocketServer -> SocketServer: io.to(gameId).emit('player_joined', {\n  player\n})
+note right: Broadcast to ALL in room\n(including creator)
+
+== Client Processing - CreateGameView ==
+
+SocketClient -> WS: game_created event
+WS -> CreateView: handleGameCreated({\n  gameId,\n  playerId,\n  game\n})
+CreateView -> LS: setPlayerId(playerId)
+note left of LS: localStorage.setItem(\n  'tgsr_player_id',\n  playerId\n)
+
+CreateView -> CreateView: router.push(`/lobby/${gameId}`)
+
+== Navigation & LobbyView Mount ==
+
+CreateView -> LobbyView: Route change
+note right: Vue Router navigates\nwith gameId in URL params
+
+LobbyView -> LS: getPlayerId()
+LS --> LobbyView: playerId
+note left: Retrieved from localStorage
+
+LobbyView -> WS: Register event listeners:\n- onEvent('game_created', handler)\n- onEvent('player_joined', handler)\n- onEvent('game_started', handler)
+
+== Problem: Event Timing Issue ==
+
+group #LightPink Potential Race Condition
+  note over CreateView, LobbyView: Navigation happens BEFORE\ngame_created event is processed
+  note over LobbyView: LobbyView mounts but\ngame ref is still empty
+end
+
+== When Player Joins ==
+
+SocketClient -> WS: player_joined event
+note left: Broadcast was sent earlier\n(when host created game)
+
+WS -> LobbyView: handlePlayerJoined({player})
+LobbyView -> LobbyView: players.value.push(player)
+
+== Multiple Games Distinction ==
+
+note over SocketServer, GamesMap
+**How Multiple Games Are Distinguished:**
+
+1. **gameId (6-char unique ID)**
+   - Each game has unique ID from nanoid(6)
+   - Socket rooms use gameId as room name
+
+2. **Socket Rooms**
+   - socket.join(gameId) adds socket to room
+   - io.to(gameId).emit(...) sends only to that room
+
+3. **Frontend Event Filtering**
+   - LobbyView checks: if (data.gameId === gameId)
+   - Only processes events for its gameId
+
+**Example with 2 games:**
+   Game "ABC123": Sockets [socket1, socket2]
+   Game "XYZ789": Sockets [socket3, socket4]
+
+   io.to("ABC123").emit(...) → Only socket1, socket2 receive
+end note
+
+@enduml
