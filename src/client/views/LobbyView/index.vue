@@ -45,7 +45,7 @@ import { onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useGameWebSocket } from '../../composables/use-game-websocket';
 import { useLobbyViewLogic } from './logic';
-import { getPlayerName, getPlayerId } from '../../utils/storage';
+import { getPlayerId } from '../../utils/storage';
 
 const props = defineProps<{
   gameId: string;
@@ -58,7 +58,6 @@ const {
   game,
   players,
   errorMessage,
-  myPlayerId,
   handleGameCreated,
   handleGameJoined,
   handleGameState,
