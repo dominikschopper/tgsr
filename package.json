@@ -1,0 +1,30 @@
+{
+  "name": "tgsr",
+  "version": "0.1.0",
+  "description": "a competitive online tag guessing game",
+  "keywords": [
+    "html",
+    "tags",
+    "game",
+    "competitive",
+    "online"
+  ],
+  "license": "MIT",
+  "author": "dev@dschopper.de",
+  "type": "module",
+  "main": "src/server/index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "nanoid": "^5.1.6",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "vue": "^3.5.26"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "typescript": "^5.9.3"
+  }
+}

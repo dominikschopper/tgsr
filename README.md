@@ -23,3 +23,31 @@ this should be a fast competitive guessing game for html tags.
 
 - if one player enters a tag, the tag is shown to all other players in the game and this tag will not score for another player
 - the player with the most points wins
+
+## Architecture
+
+Your Proposed Architecture
+
+```
+┌─────────────┐                    ┌─────────────┐
+│  Browser    │                    │  Browser    │
+│  (Host)     │◄──── WebSocket ───►│  (Player 2) │
+│             │                    │             │
+│ localStorage│        ▲ ▲         │ localStorage│
+│  - playerId │        │ │         │  - playerId │
+│  - gameData │        │ │         │  - gameData │
+└─────────────┘        │ │         └─────────────┘
+                       │ │
+                  ┌────┴─┴────┐
+                  │  Node.js   │
+                  │  WebSocket │
+                  │  Server    │
+                  │            │
+                  │ In-Memory: │
+                  │  - games   │
+                  │  - players │
+                  │  - subs    │
+                  └────────────┘
+```
+
+Stateless! Restart = empty
