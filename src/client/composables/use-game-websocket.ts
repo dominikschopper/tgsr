@@ -1,13 +1,14 @@
-// src/composables/useGameWebSocket.ts
 import { ref, onUnmounted } from 'vue';
 import { io, Socket } from 'socket.io-client';
+import type { GameVariant } from '../../shared/types.js';
+import { WS_URL } from '../../shared/config.js';
 
 const socket = ref<Socket | null>(null);
 const connected = ref(false);
 
 export function useGameWebSocket() {
   function connect() {
-    socket.value = io('http://localhost:3000'); // Or your deployed URL
+    socket.value = io(WS_URL);
 
     socket.value.on('connect', () => {
       connected.value = true;
@@ -18,7 +19,7 @@ export function useGameWebSocket() {
     });
   }
 
-  function createGame(playerName: string, variant: string, durationMinutes: number) {
+  function createGame(playerName: string, variant: GameVariant, durationMinutes: number) {
     socket.value?.emit('create_game', { playerName, variant, durationMinutes });
   }
 
@@ -34,8 +35,16 @@ export function useGameWebSocket() {
     socket.value?.emit('submit_tag', { gameId, tag });
   }
 
-  function onEvent(event: string, callback: (x: unknown)=> unknown) {
-    socket.value?.on(event!, callback);
+  function onEvent(event: string, callback: (data: any) => void) {
+    socket.value?.on(event, callback);
+  }
+
+  function offEvent(event: string, callback?: (data: any) => void) {
+    if (callback) {
+      socket.value?.off(event, callback);
+    } else {
+      socket.value?.off(event);
+    }
   }
 
   onUnmounted(() => {
@@ -49,6 +58,7 @@ export function useGameWebSocket() {
     joinGame,
     startGame,
     submitTag,
-    onEvent
+    onEvent,
+    offEvent
   };
 }

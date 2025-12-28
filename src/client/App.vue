@@ -1,0 +1,55 @@
+<template>
+  <div id="app">
+    <header>
+      <h1>TGSR - HTML Tag Guesser</h1>
+      <div class="connection-status" :class="{ connected }">
+        {{ connected ? '● Connected' : '○ Disconnected' }}
+      </div>
+    </header>
+
+    <main>
+      <router-view />
+    </main>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useGameWebSocket } from './composables/use-game-websocket';
+
+const { connected, connect } = useGameWebSocket();
+
+onMounted(() => {
+  connect();
+});
+</script>
+
+<style scoped>
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.connection-status {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+.connection-status.connected {
+  color: #22c55e;
+}
+
+main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+</style>
