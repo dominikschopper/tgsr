@@ -1,5 +1,12 @@
 # TGSR - a html tag guesser game
 
+this is a simple HTML tag guessing game, you must know yyour HTML, if you want to play that, there are two playing mode and
+you can play with your friends together ;) hope this will be fun!
+
+there is a deployed version on Render.com that you can paly with or you download this and run it locally on your machine.
+
+see **[tgsr at render.com](https://tgsr.onrender.com)**
+
 ## Development
 
 ### Prerequisites
@@ -28,6 +35,27 @@ pnpm start        # Run production server
 ```bash
 pnpm test         # Run tests with Vitest
 ```
+
+## Deployment
+
+### Deploy to Render.com
+
+This project is configured for easy deployment to Render.com:
+
+1. Push your code to GitHub
+2. Go to [Render.com](https://render.com/) and sign up/login
+3. Click "New +" → "Web Service"
+4. Connect your GitHub repository
+5. Render will automatically detect `render.yaml` and configure everything
+6. Click "Create Web Service"
+
+The app will be deployed with:
+- **Build Command**: `pnpm install && pnpm build`
+- **Start Command**: `pnpm start`
+- **Region**: Frankfurt
+- **Plan**: Free (with sleep after 15min inactivity)
+
+**Note**: On the free plan, the service sleeps after 15 minutes of inactivity. First request after sleep takes ~30 seconds.
 
 ## idea
 

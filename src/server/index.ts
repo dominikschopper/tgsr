@@ -305,6 +305,9 @@ function calculateScores(game: Game): PlayerScore[] {
   }
 }
 
-httpServer.listen(3000, () => {
-  console.log('Server running on port 3000');
+// Use PORT from environment (required for Render.com) or 8642 for local dev
+const PORT = process.env.PORT || 8642;
+
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
