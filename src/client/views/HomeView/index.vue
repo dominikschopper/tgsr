@@ -12,6 +12,7 @@
           type="text"
           placeholder="Enter your name"
           maxlength="20"
+          autocomplete="off"
           @keyup.enter="() => handleCreateGame(playerName)"
         />
       </div>
