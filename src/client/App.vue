@@ -10,6 +10,15 @@
     <main>
       <router-view />
     </main>
+
+    <footer>
+      <p>
+        Open Source on
+        <a href="https://github.com/dominikschopper/tgsr" target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+      </p>
+    </footer>
   </div>
 </template>
 
