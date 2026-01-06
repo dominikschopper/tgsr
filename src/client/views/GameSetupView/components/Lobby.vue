@@ -5,16 +5,17 @@
     <div v-if="game" class="game-info">
       <div class="game-code-container">
         <div class="game-code" :class="{ copied: isCopied }">{{ game.id }}</div>
-        <button @click="copyGameId" class="copy-button" :class="{ copied: isCopied }">
+        <button v-if="isHost" @click="copyGameId" class="copy-button" :class="{ copied: isCopied }">
           <span>Copy ID</span>
           <span class="material-symbols-outlined icon">{{ isCopied ? 'check' : 'content_copy' }}</span>
         </button>
-        <button @click="copyGameUrl" class="copy-button" :class="{ copied: isUrlCopied }">
+        <button v-if="isHost" @click="copyGameUrl" class="copy-button" :class="{ copied: isUrlCopied }">
           <span>Copy URL</span>
           <span class="material-symbols-outlined icon">{{ isUrlCopied ? 'check' : 'link' }}</span>
         </button>
       </div>
-      <p class="text-center">Share the game ID or URL with other players</p>
+      <p v-if="isHost" class="text-center">Share the game ID or URL with other players</p>
+      <p v-else class="text-center">You are playing in game {{ game.id }}</p>
 
       <div class="game-details mt-2">
         <p><strong>Variant:</strong> {{ game.variant === 'sharpshooter' ? 'Sharpshooter' : 'Quickdraw' }}</p>
