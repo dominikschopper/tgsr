@@ -4,10 +4,5 @@ services:
     runtime: node
     region: frankfurt
     plan: free
-    buildCommand: |
-      corepack enable
-      corepack prepare pnpm@9.15.2 --activate
-      pnpm install --shamefully-hoist
-      pnpm exec vite build
-      pnpm exec tsc -p tsconfig.server.json
+    buildCommand: npm install && npm run build
     startCommand: NODE_ENV=production node dist/server/index.js
