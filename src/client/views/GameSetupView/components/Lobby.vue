@@ -6,11 +6,15 @@
       <div class="game-code-container">
         <div class="game-code" :class="{ copied: isCopied }">{{ game.id }}</div>
         <button @click="copyGameId" class="copy-button" :class="{ copied: isCopied }">
-          <span>Copy</span>
+          <span>Copy ID</span>
           <span class="material-symbols-outlined icon">{{ isCopied ? 'check' : 'content_copy' }}</span>
         </button>
+        <button @click="copyGameUrl" class="copy-button" :class="{ copied: isUrlCopied }">
+          <span>Copy URL</span>
+          <span class="material-symbols-outlined icon">{{ isUrlCopied ? 'check' : 'link' }}</span>
+        </button>
       </div>
-      <p class="text-center">Share this game ID with other players</p>
+      <p class="text-center">Share the game ID or URL with other players</p>
 
       <div class="game-details mt-2">
         <p><strong>Variant:</strong> {{ game.variant === 'sharpshooter' ? 'Sharpshooter' : 'Quickdraw' }}</p>
@@ -60,6 +64,7 @@ defineEmits<{
 }>();
 
 const isCopied = ref(false);
+const isUrlCopied = ref(false);
 
 const copyGameId = async () => {
   if (!props.game) return;
@@ -72,6 +77,21 @@ const copyGameId = async () => {
     }, 2000);
   } catch (err) {
     console.error('Failed to copy game ID:', err);
+  }
+};
+
+const copyGameUrl = async () => {
+  if (!props.game) return;
+
+  try {
+    const url = `${window.location.origin}/join/${props.game.id}`;
+    await navigator.clipboard.writeText(url);
+    isUrlCopied.value = true;
+    setTimeout(() => {
+      isUrlCopied.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy game URL:', err);
   }
 };
 </script>
