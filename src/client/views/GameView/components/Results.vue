@@ -3,7 +3,8 @@
     <h2>Game Results</h2>
 
     <div v-if="winner" class="winner-banner">
-      🏆 {{ winner.playerName }} wins!
+      <span class="material-symbols-outlined trophy-icon">emoji_events</span>
+      {{ winner.playerName }} wins!
     </div>
 
     <div class="leaderboard">
@@ -17,7 +18,7 @@
         <div class="player-info">
           <div class="player-name">{{ player.playerName }}</div>
           <div class="player-score">
-            {{ player.score }} {{ player.score === 1 ? 'point' : 'points' }}
+            {{ isSoloMode ? `${player.score}% of all HTML tags` : `${player.score} ${player.score === 1 ? 'point' : 'points'}` }}
           </div>
         </div>
         <div class="player-tags">
@@ -38,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { PlayerScore } from '../../../../shared/types';
 
 const props = defineProps<{
@@ -49,6 +51,7 @@ defineEmits<{
 }>();
 
 const winner = props.scores.length > 0 ? props.scores[0] : null;
+const isSoloMode = computed(() => props.scores.length === 1);
 </script>
 
 <style scoped>
@@ -62,6 +65,15 @@ const winner = props.scores.length > 0 ? props.scores[0] : null;
   font-weight: bold;
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.trophy-icon {
+  font-size: 2rem;
+  color: #d97706;
 }
 
 .leaderboard {
