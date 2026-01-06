@@ -1,5 +1,34 @@
 # TGSR - a html tag guesser game
 
+## Development
+
+### Prerequisites
+- Node.js 18+ (empfohlen: 20+)
+- pnpm 9.15.2 (wird automatisch via `packageManager` field verwendet)
+
+### Setup
+```bash
+pnpm install
+```
+
+### Run Development Server
+```bash
+pnpm dev          # Starts both server and client
+pnpm dev:server   # Server only
+pnpm dev:client   # Client only
+```
+
+### Build
+```bash
+pnpm build        # Build for production
+pnpm start        # Run production server
+```
+
+### Testing
+```bash
+pnpm test         # Run tests with Vitest
+```
+
 ## idea
 
 this should be a fast competitive guessing game for html tags.

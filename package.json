@@ -13,8 +13,9 @@
   "author": "dev@dschopper.de",
   "type": "module",
   "main": "src/server/index.ts",
+  "packageManager": "pnpm@9.15.2",
   "scripts": {
-    "dev": "concurrently -i --default-input-target=1 'npm run dev:server' 'npm run dev:client'",
+    "dev": "concurrently -i --default-input-target=1 'pnpm run dev:server' 'pnpm run dev:client'",
     "dev:server": "tsx watch src/server/index.ts",
     "dev:client": "vite",
     "build": "vite build && tsc -p tsconfig.server.json",
