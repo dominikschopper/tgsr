@@ -5,7 +5,8 @@ services:
     region: frankfurt
     plan: free
     buildCommand: |
-      npm install -g pnpm@9.15.2
-      pnpm install --no-frozen-lockfile
+      corepack enable
+      corepack prepare pnpm@9.15.2 --activate
+      pnpm install --shamefully-hoist
       pnpm build
     startCommand: NODE_ENV=production node dist/server/index.js
