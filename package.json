@@ -18,7 +18,7 @@
     "dev": "concurrently -i --default-input-target=1 'pnpm run dev:server' 'pnpm run dev:client'",
     "dev:server": "tsx watch src/server/index.ts",
     "dev:client": "vite",
-    "build": "pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
+    "build": "vite build && tsc -p tsconfig.server.json",
     "preview": "vite preview",
     "start": "node dist/server/index.js",
     "test": "vitest"
