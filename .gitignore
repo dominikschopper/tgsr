@@ -5,6 +5,3 @@ dist
 *.log
 .env
 .DS_Store
-
-# pnpm
-pnpm-lock.yaml
