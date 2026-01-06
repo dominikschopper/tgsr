@@ -7,6 +7,8 @@ there is a deployed version on Render.com that you can paly with or you download
 
 see **[tgsr at render.com](https://tgsr.onrender.com)**
 
+please keep in mind, this is the free tier of render.com so it can take some 30 seconds until the server is started up!
+
 ## Development
 
 ### Prerequisites
