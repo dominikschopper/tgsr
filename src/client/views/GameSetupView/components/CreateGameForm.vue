@@ -6,14 +6,22 @@
       <label for="variant">Game Variant</label>
       <div class="radio-group">
         <label>
-          <input type="radio" v-model="variant" value="sharpshooter" />
-          <span>Sharpshooter</span>
-          <small>Secret tags, unique = more points</small>
+          <div class="radio-option">
+            <input type="radio" v-model="variant" value="sharpshooter" />
+            <span class="variant-name">Sharpshooter</span>
+          </div>
+          <small class="variant-description">
+            Your guessed tags remain secret. For each tag you guess, you earn as many points as there are players. However, for each other player who also guessed the same tag, you lose one point. Unique tags score highest!
+          </small>
         </label>
         <label>
-          <input type="radio" v-model="variant" value="quickdraw" />
-          <span>Quickdraw</span>
-          <small>Visible tags, first = only points</small>
+          <div class="radio-option">
+            <input type="radio" v-model="variant" value="quickdraw" />
+            <span class="variant-name">Quickdraw</span>
+          </div>
+          <small class="variant-description">
+            As soon as you guess a tag, it becomes visible to all players and cannot be scored by anyone else. Speed matters! Be the first to claim the most tags.
+          </small>
         </label>
       </div>
     </div>
@@ -61,34 +69,45 @@ const durationMinutes = defineModel<number>('durationMinutes', { required: true 
 .radio-group {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .radio-group label {
   display: flex;
-  align-items: center;
-  padding: 0.75rem;
+  flex-direction: column;
+  padding: 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .radio-group label:hover {
   background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .radio-group input[type="radio"] {
   margin-right: 0.75rem;
+  cursor: pointer;
 }
 
-.radio-group span {
-  font-weight: 500;
+.variant-name {
+  font-weight: 600;
+  font-size: 1rem;
 }
 
-.radio-group small {
+.variant-description {
   display: block;
-  color: #666;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding-left: 1.75rem;
 }
 </style>

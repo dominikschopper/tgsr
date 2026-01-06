@@ -14,7 +14,7 @@
           :value="tagInput"
           @input="$emit('update:tagInput', ($event.target as HTMLInputElement).value)"
           type="text"
-          placeholder="e.g., div, span, button"
+          placeholder="any valid HTML tag"
           @keyup.enter="$emit('submit')"
           :disabled="timeRemaining <= 0"
           autocomplete="off"
