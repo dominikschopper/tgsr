@@ -4,7 +4,7 @@
     "module": "nodenext",
     "target": "esnext",
     "types": ["node"],
-    "outDir": "./dist/server",
+    "outDir": "./dist",
     "rootDir": "./src"
   },
   "include": ["src/server/**/*", "src/shared/**/*"],
