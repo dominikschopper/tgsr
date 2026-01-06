@@ -35,8 +35,6 @@
         <button @click="() => router.push('/')" class="secondary">Leave Game</button>
       </div>
     </div>
-    <pre>game:{{ game }}</pre>
-    <pre>playerId:{{ getPlayerId() }}</pre>
   </div>
 </template>
 
