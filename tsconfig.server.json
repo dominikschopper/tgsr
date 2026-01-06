@@ -8,5 +8,5 @@
     "rootDir": "./src"
   },
   "include": ["src/server/**/*", "src/shared/**/*"],
-  "exclude": ["node_modules", "dist", "src/client"]
+  "exclude": ["node_modules", "dist", "src/client", "**/*.spec.ts", "**/*.test.ts"]
 }
