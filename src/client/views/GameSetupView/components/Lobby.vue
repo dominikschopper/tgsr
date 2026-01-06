@@ -33,7 +33,7 @@
     </div>
 
     <div class="button-group">
-      <button v-if="isHost" @click="$emit('start')" :disabled="players.length < 2">
+      <button v-if="isHost" @click="$emit('start')" :disabled="players.length < MIN_PLAYERS">
         Start Game
       </button>
       <p v-else class="text-center">Waiting for host to start the game...</p>
@@ -45,6 +45,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { Game, Player } from '../../../../shared/types';
+import { MIN_PLAYERS } from '../../../../shared/config';
 
 const props = defineProps<{
   game: Game | null;

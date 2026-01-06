@@ -15,4 +15,4 @@ export const WS_URL = isDevelopment ? (viteWsUrl || 'http://localhost:8642') : '
 // Game configuration
 export const MIN_GAME_DURATION_MINUTES = 1;
 export const MAX_GAME_DURATION_MINUTES = 5;
-export const MIN_PLAYERS = 2;
+export const MIN_PLAYERS = 1;
