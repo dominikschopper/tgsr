@@ -60,5 +60,30 @@ main {
   padding: 2rem;
   max-width: 800px;
   margin: 0 auto;
+  min-height: calc(100vh - 200px);
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #ddd;
+  background-color: #f9fafb;
+  margin-top: 2rem;
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+footer a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+footer a:hover {
+  text-decoration: underline;
 }
 </style>
