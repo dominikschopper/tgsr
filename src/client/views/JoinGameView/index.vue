@@ -12,6 +12,7 @@
           placeholder="e.g. ABC123"
           @keyup.enter="handleJoinGame"
           maxlength="6"
+          autocomplete="off"
         />
         <p class="text-small mt-1">Enter the 6-character game ID</p>
       </div>
