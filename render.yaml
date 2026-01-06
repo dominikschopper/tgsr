@@ -8,5 +8,6 @@ services:
       corepack enable
       corepack prepare pnpm@9.15.2 --activate
       pnpm install --shamefully-hoist
-      pnpm build
+      pnpm exec vite build
+      pnpm exec tsc -p tsconfig.server.json
     startCommand: NODE_ENV=production node dist/server/index.js
