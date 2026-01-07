@@ -7,14 +7,14 @@
     </div>
 
     <div class="form-group">
-      <label for="tagInput">Enter HTML Tag</label>
+      <label for="tagInput">Enter HTML Tags</label>
       <div class="tag-input-group">
         <input
           id="tagInput"
           :value="tagInput"
           @input="$emit('update:tagInput', ($event.target as HTMLInputElement).value)"
           type="text"
-          placeholder="any valid HTML tag"
+          placeholder="enter tags (space or comma separated)"
           @keyup.enter="$emit('submit')"
           :disabled="timeRemaining <= 0"
           autocomplete="off"
@@ -25,8 +25,8 @@
       </div>
 
       <p v-if="feedbackMessage" class="feedback-message" :class="{
-        success: feedbackMessage.startsWith('✓'),
-        error: feedbackMessage.startsWith('✗')
+        success: feedbackMessage.startsWith('OK:'),
+        error: feedbackMessage.startsWith('ERR:')
       }">
         {{ feedbackMessage }}
       </p>

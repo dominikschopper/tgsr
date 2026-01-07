@@ -55,9 +55,9 @@ export function useGameViewLogic({ gameId, submitTag }: GameLogicParams) {
   }
 
   function handleSubmitTag() {
-    const tag = tagInput.value.trim().toLowerCase();
+    const input = tagInput.value.trim().toLowerCase();
 
-    if (!tag) {
+    if (!input) {
       feedbackMessage.value = '';
       return;
     }
@@ -67,22 +67,55 @@ export function useGameViewLogic({ gameId, submitTag }: GameLogicParams) {
       return;
     }
 
-    // Quickdraw: Check if tag already taken by any player
-    if (variant.value === 'quickdraw') {
-      const allSubmittedTags = Array.from(allTags.value.values()).flat();
-      if (allSubmittedTags.includes(tag)) {
-        feedbackMessage.value = `✗ "${tag}" already taken by another player`;
-        setTimeout(() => {
-          feedbackMessage.value = '';
-        }, 3000);
-        tagInput.value = '';
-        return;
-      }
+    // Split on non-word characters (\W+)
+    const tags = input.split(/\W+/).filter(tag => tag.length > 0);
+
+    if (tags.length === 0) {
+      return;
     }
 
-    submitTag(gameId, tag);
+    // For Quickdraw: filter out already-taken tags
+    let tagsToSubmit = tags;
+    let takenCount = 0;
+
+    if (variant.value === 'quickdraw') {
+      const allSubmittedTags = Array.from(allTags.value.values()).flat();
+      tagsToSubmit = tags.filter(tag => !allSubmittedTags.includes(tag));
+      takenCount = tags.length - tagsToSubmit.length;
+    }
+
+    // Deduplicate within this batch
+    const uniqueTags = [...new Set(tagsToSubmit)];
+    const batchDuplicateCount = tagsToSubmit.length - uniqueTags.length;
+
+    // Submit all unique tags
+    uniqueTags.forEach(tag => {
+      submitTag(gameId, tag);
+    });
+
+    // Show feedback
+    const messages: string[] = [];
+    if (uniqueTags.length > 0) {
+      messages.push(`${uniqueTags.length} submitted`);
+    }
+    if (takenCount > 0) {
+      messages.push(`${takenCount} already taken`);
+    }
+    if (batchDuplicateCount > 0) {
+      messages.push(`${batchDuplicateCount} duplicate${batchDuplicateCount > 1 ? 's' : ''} in input`);
+    }
+
+    if (messages.length > 0) {
+      // Add OK: prefix if any tags were submitted, otherwise ERR:
+      const prefix = uniqueTags.length > 0 ? 'OK:' : 'ERR:';
+      feedbackMessage.value = `${prefix} ${messages.join(', ')}`;
+    }
+
     tagInput.value = '';
-    feedbackMessage.value = '';
+
+    setTimeout(() => {
+      feedbackMessage.value = '';
+    }, 2000);
   }
 
   function handleTagSubmitted(data: { playerId: string; playerName?: string; tag: string }) {
@@ -91,7 +124,7 @@ export function useGameViewLogic({ gameId, submitTag }: GameLogicParams) {
       myTags.value.push(data.tag);
     }
 
-    feedbackMessage.value = `✓ ${data.tag} submitted!`;
+    feedbackMessage.value = `OK: ${data.tag} submitted!`;
 
     // For quickdraw, track all submissions
     if (variant.value === 'quickdraw' && data.playerName) {
@@ -109,14 +142,14 @@ export function useGameViewLogic({ gameId, submitTag }: GameLogicParams) {
   }
 
   function handleTagInvalid(data: { tag: string }) {
-    feedbackMessage.value = `✗ "${data.tag}" is not a valid HTML tag`;
+    feedbackMessage.value = `ERR: "${data.tag}" is not a valid HTML tag`;
     setTimeout(() => {
       feedbackMessage.value = '';
     }, 3000);
   }
 
   function handleTagDuplicate(data: { tag: string }) {
-    feedbackMessage.value = `✗ You already submitted "${data.tag}"`;
+    feedbackMessage.value = `ERR: You already submitted "${data.tag}"`;
     setTimeout(() => {
       feedbackMessage.value = '';
     }, 3000);
