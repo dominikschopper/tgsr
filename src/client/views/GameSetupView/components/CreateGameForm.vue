@@ -1,9 +1,9 @@
 <template>
   <div class="card">
-    <h2>Create Game</h2>
+    <h2>Create a Game</h2>
 
     <div class="form-group">
-      <label for="variant">Game Variant</label>
+      <label for="variant">Choose a game variant</label>
       <div class="radio-group">
         <label>
           <div class="radio-option">
@@ -11,7 +11,9 @@
             <span class="variant-name">Sharpshooter</span>
           </div>
           <small class="variant-description">
-            Your guessed tags remain secret. For each tag you guess, you earn as many points as there are players. However, for each other player who also guessed the same tag, you lose one point. Unique tags score highest!
+            For each tag you guess, you earn as many points as there are players.
+            However, for each other player who also guessed the same tag, you lose one point.
+            Unique tags score highest!
           </small>
         </label>
         <label>
@@ -20,7 +22,8 @@
             <span class="variant-name">Quickdraw</span>
           </div>
           <small class="variant-description">
-            As soon as you guess a tag, it becomes visible to all players and cannot be scored by anyone else. Speed matters! Be the first to claim the most tags.
+            As soon as you guess a tag, all players can see it and nobody can use this tag to sscore.
+            Speed matters! Be the first to claim the most tags.
           </small>
         </label>
       </div>

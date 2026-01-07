@@ -1,11 +1,20 @@
 <template>
   <div class="container">
     <div class="card">
-      <h2>Welcome to TGSR</h2>
+      <h2>Welcome to TGSR (Tag Guesser)</h2>
       <p>HTML Tag Guesser - A competitive guessing game</p>
 
+      <p>
+        This is a place to test your HTML knowledge. Play a game of <em>who knows the most tags?</em>, either alone or together with others.
+      </p>
+      <ul>
+        <li>enter a gamer tag/name</li>
+        <li>create a game or join someone elses game</li>
+        <li>compete</li>
+      </ul>
+
       <div class="form-group">
-        <label for="playerName">Your Name</label>
+        <label for="playerName">Set a gamer tag</label>
         <input
           id="playerName"
           v-model="playerName"
@@ -52,3 +61,15 @@ onMounted(() => {
   }
 });
 </script>
+<style scoped>
+  p{
+    margin-bottom: .5rem;
+  }
+  ul,li {
+    list-style-type: square;
+  }
+  li{
+    margin-left: .5rem;
+    list-style-position: inside;
+  }
+</style>
