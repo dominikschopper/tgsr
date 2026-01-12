@@ -161,7 +161,7 @@ describe('useGameWebSocket - Integration Tests', () => {
       ws.onEvent('game_created', gameCreatedHandler);
 
       // Create game
-      ws.createGame('TestPlayer', 'sharpshooter', 2);
+      ws.createGame('TestPlayer', 'brainiac', 2);
 
       // Simulate server response
       mockSocketInstance?.trigger('game_created', {
@@ -169,7 +169,7 @@ describe('useGameWebSocket - Integration Tests', () => {
         playerId: 'player-123',
         game: {
           id: 'GAME123',
-          variant: 'sharpshooter',
+          variant: 'brainiac',
           durationMinutes: 2,
         },
       });
@@ -181,7 +181,7 @@ describe('useGameWebSocket - Integration Tests', () => {
         playerId: 'player-123',
         game: expect.objectContaining({
           id: 'GAME123',
-          variant: 'sharpshooter',
+          variant: 'brainiac',
         }),
       });
     });

@@ -18,7 +18,7 @@
       <p v-else class="text-center">You are playing in game {{ game.id }}</p>
 
       <div class="game-details mt-2">
-        <p><strong>Variant:</strong> {{ game.variant === 'sharpshooter' ? 'Sharpshooter' : 'Quickdraw' }}</p>
+        <p><strong>Variant:</strong> {{ game.variant === 'brainiac' ? 'Brainiac' : 'Quickdraw' }}</p>
         <p><strong>Duration:</strong> {{ game.durationMinutes }} {{ game.durationMinutes === 1 ? 'minute' : 'minutes' }}</p>
       </div>
     </div>

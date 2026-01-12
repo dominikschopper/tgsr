@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 import { nanoid } from 'nanoid';
 import { isValidHTMLTag } from '../shared/html-tags.js';
 import type { Game as GameType, Player, PlayerScore } from '../shared/types.js';
-import { calculateSharpshooterScores, calculateQuickdrawScores, calculateSoloScore } from './scoring.js';
+import { calculateBrainiacScores, calculateQuickdrawScores, calculateSoloScore } from './scoring.js';
 import { SERVER_PORT, MIN_GAME_DURATION_MINUTES, MAX_GAME_DURATION_MINUTES } from '../shared/config.js';
 
 const app = express();
@@ -204,7 +204,7 @@ io.on('connection', (socket) => {
         tag: normalizedTag
       });
     } else {
-      // Sharpshooter: only confirm to submitter
+      // brainiac: only confirm to submitter
       socket.emit('tag_submitted', {
         playerId: socket.id,
         tag: normalizedTag
@@ -298,8 +298,8 @@ function calculateScores(game: Game): PlayerScore[] {
   }
 
   // Multi-player modes
-  if (game.variant === 'sharpshooter') {
-    return calculateSharpshooterScores(scoringInput);
+  if (game.variant === 'brainiac') {
+    return calculateBrainiacScores(scoringInput);
   } else {
     return calculateQuickdrawScores(scoringInput);
   }

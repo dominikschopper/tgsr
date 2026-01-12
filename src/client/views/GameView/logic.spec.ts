@@ -21,7 +21,7 @@ describe('useGameViewLogic - Multi-Tag Input', () => {
         id: MOCK_GAME_ID,
         status: 'active',
         endsAt: Date.now() + 60000,
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 1,
         hostId: 'test-host',
         playerTags: new Map(),
@@ -251,21 +251,21 @@ describe('useGameViewLogic - Multi-Tag Input', () => {
       expect(logic.feedbackMessage.value).toContain('3 already taken');
     });
 
-    it('should not affect sharpshooter mode', () => {
-      // Switch back to sharpshooter
+    it('should not affect brainiac mode', () => {
+      // Switch back to brainiac
       logic.handleGameState({
         game: {
           id: MOCK_GAME_ID,
           status: 'active',
           endsAt: Date.now() + 60000,
-          variant: 'sharpshooter',
+          variant: 'brainiac',
           durationMinutes: 1,
           hostId: 'test-host',
           playerTags: new Map(),
         },
       });
 
-      // Same tags should be submittable in sharpshooter mode
+      // Same tags should be submittable in brainiac mode
       logic.tagInput.value = 'div span button';
       logic.handleSubmitTag();
 
@@ -281,7 +281,7 @@ describe('useGameViewLogic - Multi-Tag Input', () => {
           id: MOCK_GAME_ID,
           status: 'active',
           endsAt: Date.now() - 1000, // Time already passed
-          variant: 'sharpshooter',
+          variant: 'brainiac',
           durationMinutes: 1,
           hostId: 'test-host',
           playerTags: new Map(),
@@ -304,7 +304,7 @@ describe('useGameViewLogic - Multi-Tag Input', () => {
           id: MOCK_GAME_ID,
           status: 'active',
           endsAt: Date.now() - 1000,
-          variant: 'sharpshooter',
+          variant: 'brainiac',
           durationMinutes: 1,
           hostId: 'test-host',
           playerTags: new Map(),

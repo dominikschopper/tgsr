@@ -14,7 +14,7 @@ export function useGameViewLogic({ gameId, submitTag }: GameLogicParams) {
   const endsAt = ref(0);
   const errorMessage = ref('');
   const feedbackMessage = ref('');
-  const variant = ref<'sharpshooter' | 'quickdraw'>('sharpshooter');
+  const variant = ref<'brainiac' | 'quickdraw'>('brainiac');
   const gameEnded = ref(false);
   const scores = ref<any[]>([]);
 

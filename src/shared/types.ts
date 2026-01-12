@@ -1,5 +1,5 @@
 // Game types
-export type GameVariant = 'sharpshooter' | 'quickdraw';
+export type GameVariant = 'brainiac' | 'quickdraw';
 export type GameStatus = 'waiting' | 'active' | 'finished';
 
 export interface Game {

@@ -7,7 +7,7 @@ export interface ScoringInput {
   submissions: Map<string, string[]>;
 }
 
-export function calculateSharpshooterScores(input: ScoringInput): PlayerScore[] {
+export function calculateBrainiacScores(input: ScoringInput): PlayerScore[] {
   const { playerIds, playerNames, submissions } = input;
   const playerCount = playerIds.length;
 

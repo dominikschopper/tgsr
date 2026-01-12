@@ -7,8 +7,8 @@
       <div class="radio-group">
         <label>
           <div class="radio-option">
-            <input type="radio" v-model="variant" value="sharpshooter" />
-            <span class="variant-name">Sharpshooter</span>
+            <input type="radio" v-model="variant" value="brainiac" />
+            <span class="variant-name">Brainiac</span>
           </div>
           <small class="variant-description">
             For each tag you guess, you earn as many points as there are players.

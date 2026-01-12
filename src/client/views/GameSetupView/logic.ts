@@ -12,7 +12,7 @@ interface GameSetupLogicParams {
 
 export function useGameSetupViewLogic({ router, createGame, startGame }: GameSetupLogicParams) {
   // Create game state
-  const variant = ref<GameVariant>('sharpshooter');
+  const variant = ref<GameVariant>('brainiac');
   const durationMinutes = ref(2);
   const errorMessage = ref('');
 

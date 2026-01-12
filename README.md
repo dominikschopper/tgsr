@@ -69,7 +69,7 @@ this should be a fast competitive guessing game for html tags.
 - other player(s) join the game
 - the host starts the game and the timer starts
 
-#### game variant one / aka sharpshooter
+#### game variant one / aka brainiac
 
 - each player can enter the name of an html tag, for each correct tag the player sees his entry in a list of tags
 - when the time is over nobody can enter more tags

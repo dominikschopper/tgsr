@@ -56,7 +56,7 @@ describe('LobbyView Component', () => {
       const hostGame: Game = {
         id: 'GAME01',
         hostId: 'player-123', // Same as mockPlayerId
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -92,7 +92,7 @@ describe('LobbyView Component', () => {
       const nonHostGame: Game = {
         id: 'GAME01',
         hostId: 'other-player-456', // Different from mockPlayerId
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -126,7 +126,7 @@ describe('LobbyView Component', () => {
       const hostGame: Game = {
         id: 'GAME01',
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -154,7 +154,7 @@ describe('LobbyView Component', () => {
       const hostGame: Game = {
         id: 'GAME01',
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -183,7 +183,7 @@ describe('LobbyView Component', () => {
       const hostGame: Game = {
         id: 'GAME01',
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -218,7 +218,7 @@ describe('LobbyView Component', () => {
       const game: Game = {
         id: 'GAME01',
         hostId: 'player-456',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -257,7 +257,7 @@ describe('LobbyView Component', () => {
       const game: Game = {
         id: 'GAME01',
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -276,23 +276,23 @@ describe('LobbyView Component', () => {
         },
       });
 
-      const sharpshooterGame: Game = {
+      const brainiacGame: Game = {
         id: 'GAME01',
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
       };
 
-      wrapper.vm.game = sharpshooterGame;
+      wrapper.vm.game = brainiacGame;
       await nextTick();
 
-      expect(wrapper.text()).toContain('Sharpshooter');
+      expect(wrapper.text()).toContain('brainiac');
 
       // Test quickdraw variant
       const quickdrawGame: Game = {
-        ...sharpshooterGame,
+        ...brainiacGame,
         variant: 'quickdraw',
       };
 
@@ -313,7 +313,7 @@ describe('LobbyView Component', () => {
       const oneMinuteGame: Game = {
         id: 'GAME01',
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 1,
         status: 'waiting',
         playerTags: new Map(),

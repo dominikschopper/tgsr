@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { calculateSharpshooterScores, calculateQuickdrawScores, calculateSoloScore } from './scoring.js';
+import { calculateBrainiacScores, calculateQuickdrawScores, calculateSoloScore } from './scoring.js';
 import { HTML_TAGS } from '../shared/html-tags.js';
 
-describe('calculateSharpshooterScores', () => {
+describe('calculateBrainiacScores', () => {
   it('should award playerCount points for each unique tag', () => {
     const input = {
       playerIds: ['player1', 'player2'],
@@ -16,7 +16,7 @@ describe('calculateSharpshooterScores', () => {
       ])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     expect(scores).toHaveLength(2);
     expect(scores[0].score).toBe(2); // 2 players, unique tag = 2 points
@@ -38,7 +38,7 @@ describe('calculateSharpshooterScores', () => {
       ])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     // player1: div shared by 2 players → 3 - (2-1) = 2 points
     // player2: div shared by 2 players → 3 - (2-1) = 2 points
@@ -61,7 +61,7 @@ describe('calculateSharpshooterScores', () => {
       ])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     // player1: div (shared=1), span (unique=2), p (unique=2) = 5 points
     // player2: div (shared=1), button (unique=2) = 3 points
@@ -84,7 +84,7 @@ describe('calculateSharpshooterScores', () => {
       ])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     // Each tag appears 3 times with 3 players
     // Per tag: 3 - (3-1) = 1 point
@@ -107,7 +107,7 @@ describe('calculateSharpshooterScores', () => {
       ])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     expect(scores[0].score).toBe(0);
     expect(scores[1].score).toBe(0);
@@ -126,7 +126,7 @@ describe('calculateSharpshooterScores', () => {
       ])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     // player1 has unique tags = 2 points each
     expect(scores.find(s => s.playerId === 'player1')?.score).toBe(4);
@@ -148,7 +148,7 @@ describe('calculateSharpshooterScores', () => {
       ])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     expect(scores[0].playerId).toBe('player2'); // Highest score
     expect(scores[0].score).toBe(6);
@@ -165,7 +165,7 @@ describe('calculateSharpshooterScores', () => {
       submissions: new Map([['player1', ['div', 'span']]])
     };
 
-    const scores = calculateSharpshooterScores(input);
+    const scores = calculateBrainiacScores(input);
 
     expect(scores[0].playerName).toBe('Alice');
     expect(scores[0].tags).toEqual(['div', 'span']);

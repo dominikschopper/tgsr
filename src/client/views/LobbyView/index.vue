@@ -8,7 +8,7 @@
         <p class="text-center">Share this game ID with other players</p>
 
         <div class="game-details mt-2">
-          <p><strong>Variant:</strong> {{ game.variant === 'sharpshooter' ? 'Sharpshooter' : 'Quickdraw' }}</p>
+          <p><strong>Variant:</strong> {{ game.variant === 'brainiac' ? 'brainiac' : 'Quickdraw' }}</p>
           <p><strong>Duration:</strong> {{ game.durationMinutes }} {{ game.durationMinutes === 1 ? 'minute' : 'minutes' }}</p>
         </div>
       </div>

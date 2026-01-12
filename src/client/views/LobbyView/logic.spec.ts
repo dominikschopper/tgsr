@@ -32,7 +32,7 @@ describe('useLobbyViewLogic', () => {
       const mockGame: Game = {
         id: 'GAME01',
         hostId: 'player-123', // Same as mocked getPlayerId()
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -58,7 +58,7 @@ describe('useLobbyViewLogic', () => {
       const mockGame: Game = {
         id: 'GAME01',
         hostId: 'other-player-456', // Different from mocked getPlayerId()
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -95,7 +95,7 @@ describe('useLobbyViewLogic', () => {
       const mockGameNotHost: Game = {
         id: 'GAME01',
         hostId: 'other-player',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -108,7 +108,7 @@ describe('useLobbyViewLogic', () => {
       const mockGameIsHost: Game = {
         id: 'GAME01',
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -247,7 +247,7 @@ describe('useLobbyViewLogic', () => {
       const mockGame: Game = {
         id: 'GAME02', // Different game ID
         hostId: 'player-123',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
@@ -297,7 +297,7 @@ describe('useLobbyViewLogic', () => {
       const wrongGame: Game = {
         id: 'GAME02',
         hostId: 'other-player',
-        variant: 'sharpshooter',
+        variant: 'brainiac',
         durationMinutes: 2,
         status: 'waiting',
         playerTags: new Map(),
